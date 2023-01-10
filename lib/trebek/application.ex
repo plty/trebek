@@ -7,16 +7,35 @@ defmodule Trebek.Application do
 
   @impl true
   def start(_type, _args) do
+    topologies = [
+      mesh_gossip: [
+        strategy: Cluster.Strategy.Gossip,
+        # TODO[low](jer): do multicast rather than broadcast :/ or not.
+        config: [
+          multicast_addr: "255.255.255.255",
+          broadcast_only: true,
+          secret: "shoosh"
+        ]
+      ]
+    ]
+
     children = [
+      # Start the Cluster supervisor
+      {Cluster.Supervisor, [topologies, [name: Trebek.ClusterSupervisor]]},
+      # Start the NodeObserver system
+      {Trebek.NodeObserver, []},
       # Start the Telemetry supervisor
       TrebekWeb.Telemetry,
       # Start the Ecto repository
-      Trebek.Repo,
+      # NOTE(jer): deactivated for debugging reasons
+      # Trebek.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Trebek.PubSub},
       # Start Finch
       {Finch, name: Trebek.Finch},
       # Start the Endpoint (http/https)
+      Trebek.Credo,
+      TrebekWeb.Presence,
       TrebekWeb.Endpoint
       # Start a worker by calling: Trebek.Worker.start_link(arg)
       # {Trebek.Worker, arg}
