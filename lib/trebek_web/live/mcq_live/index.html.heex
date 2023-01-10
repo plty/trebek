@@ -1,41 +1,42 @@
 <.header>
-  Listing Mcqs
-  <:actions>
-    <.link patch={~p"/mcqs/new"}>
-      <.button>New Mcq</.button>
-    </.link>
-  </:actions>
+  <h1 class="text-2xl my-2 font-semibold leading-6">
+    MCQ
+  </h1>
 </.header>
 
-<.table id="mcqs" rows={@mcqs} row_click={&JS.navigate(~p"/mcqs/#{&1}")}>
-  <:col :let={mcq} label="Question"><%= mcq.question %></:col>
-  <:col :let={mcq} label="Choices"><%= mcq.choices %></:col>
-  <:col :let={mcq} label="Answer"><%= mcq.answer %></:col>
-  <:action :let={mcq}>
-    <div class="sr-only">
-      <.link navigate={~p"/mcqs/#{mcq}"}>Show</.link>
-    </div>
-    <.link patch={~p"/mcqs/#{mcq}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={mcq}>
-    <.link phx-click={JS.push("delete", value: %{id: mcq.id})} data-confirm="Are you sure?">
-      Delete
-    </.link>
-  </:action>
+<%= @mcq.q %>
+<.table id="choices" rows={@mcq.c} row_click={&JS.navigate(~p"/mcqs/#{&1}")}>
+     <:col :let={choice} label="Choices"><%= choice %></:col>
 </.table>
+<!-- <.table id="mcqs" rows={@mcqs} row_click={&JS.navigate(~p"/mcqs/#{&1}")}>
+     <:col :let={mcq} label="Question"><%= @mcq.q %></:col>
+     <:col :let={mcq} label="Choices"><%= @mcq.c %></:col>
+     <:col :let={mcq} label="Answer"><%= @mcq.a %></:col>
+     <:action :let={mcq}>
+     <div class="sr-only">
+     <.link navigate={~p"/mcqs/#{mcq}"}>Show</.link>
+     </div>
+     <.link patch={~p"/mcqs/#{mcq}/edit"}>Edit</.link>
+     </:action>
+     <:action :let={mcq}>
+     <.link phx-click={JS.push("delete", value: %{id: mcq.id})} data-confirm="Are you sure?">
+     Delete
+     </.link>
+     </:action>
+     </.table>
 
-<.modal
-  :if={@live_action in [:new, :edit]}
-  id="mcq-modal"
-  show
-  on_cancel={JS.navigate(~p"/mcqs")}
->
-  <.live_component
-    module={TrebekWeb.MCQLive.FormComponent}
-    id={@mcq.id || :new}
-    title={@page_title}
-    action={@live_action}
-    mcq={@mcq}
-    navigate={~p"/mcqs"}
-  />
-</.modal>
+     <.modal
+     :if={@live_action in [:new, :edit]}
+     id="mcq-modal"
+     show
+     on_cancel={JS.navigate(~p"/mcqs")}
+     >
+     <.live_component
+     module={TrebekWeb.MCQLive.FormComponent}
+     id={@mcq.id || :new}
+     title={@page_title}
+     action={@live_action}
+     mcq={@mcq}
+     navigate={~p"/mcqs"}
+     />
+     </.modal> -->
