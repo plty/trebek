@@ -20,11 +20,6 @@ defmodule TrebekWeb.Router do
     get "/", PageController, :home
 
     live "/mcqs", MCQLive.Index, :index
-    # live "/mcqs/new", MCQLive.Index, :new
-    # live "/mcqs/:id/edit", MCQLive.Index, :edit
-
-    # live "/mcqs/:id", MCQLive.Show, :show
-    # live "/mcqs/:id/show/edit", MCQLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

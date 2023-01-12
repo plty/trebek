@@ -39,7 +39,7 @@ defmodule Trebek.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.3"},
+      {:phoenix_live_view, "~> 0.18.6"},
       {:heroicons, "~> 0.5"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.7.2"},
@@ -52,6 +52,7 @@ defmodule Trebek.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:uniq, "~> 0.5.4"},
       {:libcluster, "~> 3.3"},
       {:delta_crdt, "~> 0.6.4"},
       {:horde, "~> 0.8"}

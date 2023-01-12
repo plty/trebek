@@ -20,25 +20,14 @@ defmodule Trebek.Application do
     ]
 
     children = [
-      # Start the Cluster supervisor
       {Cluster.Supervisor, [topologies, [name: Trebek.ClusterSupervisor]]},
-      # Start the NodeObserver system
-      {Trebek.NodeObserver, []},
-      # Start the Telemetry supervisor
       TrebekWeb.Telemetry,
-      # Start the Ecto repository
-      # NOTE(jer): deactivated for debugging reasons
-      # Trebek.Repo,
-      # Start the PubSub system
+      # Trebek.Repo, # NOTE(jer): deactivated for debugging reasons
       {Phoenix.PubSub, name: Trebek.PubSub},
-      # Start Finch
       {Finch, name: Trebek.Finch},
-      # Start the Endpoint (http/https)
       Trebek.Credo,
       TrebekWeb.Presence,
       TrebekWeb.Endpoint
-      # Start a worker by calling: Trebek.Worker.start_link(arg)
-      # {Trebek.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
