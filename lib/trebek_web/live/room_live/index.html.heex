@@ -1,0 +1,27 @@
+current user: <%= @current_user %>
+
+<div>
+  <h2>Users online:</h2>
+  <table>
+    <%= for {user, meta} <- @users do %>
+      <tr>
+        <td>
+          <%= user %>@<%= meta[:srv] %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+
+<div>
+  <h2>Nodes online:</h2>
+  <table>
+    <%= for node <- @nodes do %>
+      <tr>
+        <td>
+          <%= node %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>
