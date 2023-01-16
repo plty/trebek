@@ -1,4 +1,3 @@
 defmodule Trebek.Credo do
-  use Aviato.Agent,
-    data: %{}
+  use Aviato.Agent, data: %{}
 end

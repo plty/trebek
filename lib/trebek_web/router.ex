@@ -18,14 +18,17 @@ defmodule TrebekWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/peers", PageController, :peers
 
     live "/mcqs", MCQLive.Index, :index
+    # live "/room", MCQLive.Index, :index
+    # live "/room/:id", MCQLive.Index, :show
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", TrebekWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", TrebekAPI do
+    pipe_through :api
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:trebek, :dev_routes) do
@@ -39,7 +42,10 @@ defmodule TrebekWeb.Router do
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: TrebekWeb.Telemetry
+      live_dashboard "/dashboard",
+        metrics: TrebekWeb.Telemetry,
+        metrics_history: {TrebekWeb.MetricsStorage, :metrics_history, []}
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

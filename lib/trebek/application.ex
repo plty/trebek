@@ -1,6 +1,4 @@
 defmodule Trebek.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -20,24 +18,22 @@ defmodule Trebek.Application do
     ]
 
     children = [
-      {Cluster.Supervisor, [topologies, [name: Trebek.ClusterSupervisor]]},
       TrebekWeb.Telemetry,
-      # Trebek.Repo, # NOTE(jer): deactivated for debugging reasons
+      {TrebekWeb.MetricsStorage, TrebekWeb.Telemetry.metrics()},
+      {Cluster.Supervisor, [topologies, [name: Trebek.ClusterSupervisor]]},
       {Phoenix.PubSub, name: Trebek.PubSub},
       {Finch, name: Trebek.Finch},
+      {Horde.Registry, [name: Trebek.Registry, keys: :unique]},
+      {Horde.DynamicSupervisor, [name: Trebek.DynamicSupervisor, strategy: :one_for_one]},
       Trebek.Credo,
       TrebekWeb.Presence,
       TrebekWeb.Endpoint
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Trebek.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
     TrebekWeb.Endpoint.config_change(changed, removed)

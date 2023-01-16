@@ -55,7 +55,8 @@ defmodule Trebek.MixProject do
       {:uniq, "~> 0.5.4"},
       {:libcluster, "~> 3.3"},
       {:delta_crdt, "~> 0.6.4"},
-      {:horde, "~> 0.8"}
+      {:horde, "~> 0.8"},
+      {:circular_buffer, "~> 0.4.0"}
     ]
   end
 

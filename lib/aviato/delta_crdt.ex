@@ -22,11 +22,16 @@ defmodule Aviato.DeltaCrdt do
         @crdt_opts opts[:crdt_opts]
 
         def start_link(init_opts) do
+          IO.inspect(["init_opts", init_opts])
+          IO.inspect(["crdt_opts", @crdt_opts])
           Supervisor.start_link(__MODULE__, init_opts, name: __MODULE__)
         end
 
         @impl true
         def init(init_opts) do
+          IO.inspect(["init_opts", init_opts])
+          IO.inspect(["crdt_opts", @crdt_opts])
+
           crdt_opts =
             [crdt: DeltaCrdt.AWLWWMap]
             |> Keyword.merge(@crdt_opts)
@@ -39,6 +44,8 @@ defmodule Aviato.DeltaCrdt do
             [crdt: @crdt, name: @cluster_name]
             |> Keyword.merge(cluster_opts)
             |> Keyword.merge(init_opts)
+
+          IO.inspect(["bingung:", cluster_mod, cluster_opts])
 
           children = [
             {DeltaCrdt, crdt_opts},
