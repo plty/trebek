@@ -1,7 +1,18 @@
 <div class="space-y-4">
-  <div>
-    current user: <%= @current_user %>
-  </div>
+  <table>
+    <tr>
+      <td>user</td>
+      <td>
+        <%= @current_user %>
+      </td>
+    </tr>
+    <tr>
+      <td>server</td>
+      <td>
+        <%= Node.self() %>
+      </td>
+    </tr>
+  </table>
 
   <div>
     <%= if @question do %>

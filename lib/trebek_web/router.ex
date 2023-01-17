@@ -21,7 +21,6 @@ defmodule TrebekWeb.Router do
 
     live_session :default do
       live "/mcqs", MCQLive.Index, :index
-      live "/room/", RoomLive.Index, :index
       live "/room/:id", RoomLive.Index, :index
       live "/room/:id/manage", RoomLive.Edit, :index
     end

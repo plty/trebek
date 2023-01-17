@@ -11,11 +11,19 @@ defmodule TrebekWeb.RoomLive.Edit do
 
   @impl true
   def mount(%{"id" => room_id}, _session, socket) do
-    Trebek.Credo.put("problem:" <> room_id, "Siapa nama bokapnya otto?")
+    {:ok, socket |> assign(room_id: room_id)}
+  end
 
-    {:ok,
-     socket
-     |> assign(:type, :mcq)
-     |> assign(:changeset, %{})}
+  @impl true
+  def handle_event("save", %{"problem" => %{"question" => q}}, socket) do
+    Trebek.Credo.put("problem:" <> socket.assigns.room_id, q)
+
+    TrebekWeb.Endpoint.broadcast(
+      "room:" <> socket.assigns.room_id,
+      "question_changed",
+      q
+    )
+
+    {:noreply, socket}
   end
 end
