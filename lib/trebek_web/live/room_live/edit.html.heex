@@ -1,0 +1,21 @@
+<div>
+  <.header>
+    bebong
+    <:subtitle>Use this form to manage mcq records in your database.</:subtitle>
+  </.header>
+
+  <.simple_form :let={f} for={:question} id="mcq-form" phx-submit="save">
+    <.input field={{f, :question}} type="text" label="Question" />
+    <.input
+      field={{f, :choices}}
+      type="select"
+      multiple
+      label="Choices"
+      options={[{"Option 1", "option1"}, {"Option 2", "option2"}]}
+    />
+    <.input field={{f, :answer}} type="number" label="Answer" />
+    <:actions>
+      <.button phx-disable-with="Saving...">Save Mcq</.button>
+    </:actions>
+  </.simple_form>
+</div>

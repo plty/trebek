@@ -23,7 +23,7 @@ defmodule TrebekWeb.Router do
       live "/mcqs", MCQLive.Index, :index
       live "/room/", RoomLive.Index, :index
       live "/room/:id", RoomLive.Index, :index
-      live "/room/:id/manage", RoomLive.Index, :index
+      live "/room/:id/manage", RoomLive.Edit, :index
     end
   end
 

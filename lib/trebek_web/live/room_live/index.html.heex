@@ -1,27 +1,44 @@
-current user: <%= @current_user %>
+<div class="space-y-4">
+  <div>
+    current user: <%= @current_user %>
+  </div>
 
-<div>
-  <h2>Users online:</h2>
-  <table>
-    <%= for {user, meta} <- @users do %>
-      <tr>
-        <td>
-          <%= user %>@<%= meta[:srv] %>
-        </td>
-      </tr>
+  <div>
+    <%= if @question do %>
+      Question: <%= @question %>
+      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
+        <.input field={{r, :answer}} type="text" label="Answer" />
+        <:actions>
+          <.button phx-disable-with="Submitting...">Submit</.button>
+        </:actions>
+      </.simple_form>
+    <% else %>
+      Question: unset
     <% end %>
-  </table>
-</div>
+  </div>
+  <div>
+    <h2>Users online:</h2>
+    <table>
+      <%= for {{user, session}, meta} <- @users do %>
+        <tr>
+          <td>
+            <%= user %> - <%= meta[:srv] %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
 
-<div>
-  <h2>Nodes online:</h2>
-  <table>
-    <%= for node <- @nodes do %>
-      <tr>
-        <td>
-          <%= node %>
-        </td>
-      </tr>
-    <% end %>
-  </table>
+  <div>
+    <h2>Nodes online:</h2>
+    <table>
+      <%= for node <- @nodes do %>
+        <tr>
+          <td>
+            <%= node %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
 </div>
