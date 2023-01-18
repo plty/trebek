@@ -17,7 +17,7 @@
   <div>
     <%= if @question do %>
       Question: <%= @question %>
-      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
+      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="save">
         <.input field={{r, :answer}} type="text" label="Answer" />
         <:actions>
           <.button phx-disable-with="Submitting...">Submit</.button>

@@ -25,6 +25,7 @@ defmodule TrebekWeb.RoomLive.Index do
     {:ok,
      socket
      |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
+     |> assign(room_id: room_id)
      |> assign(:question, Trebek.Credo.get("problem:" <> room_id, nil))
      |> assign(:current_user, id)
      |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
@@ -49,10 +50,23 @@ defmodule TrebekWeb.RoomLive.Index do
   end
 
   @impl true
-  def handle_event("save", param, socket) do
-    IO.inspect(param)
-    IO.inspect(socket)
+  def handle_event("save", %{"response" => %{"answer" => a}}, socket) do
+    Trebek.Credo.put("answer:" <> socket.assigns.room_id <> ":" <> socket.assigns.current_user, a )
+
+    TrebekWeb.Endpoint.broadcast(
+      "freqs",
+      "vote_changed",
+      get_freqs()
+    )
+
     {:noreply, socket}
+  end
+
+  def get_freqs() do
+    Map.values(Trebek.Credo.get())
+    |> Enum.frequencies()
+    |> Map.to_list()
+    |> Enum.map(fn {x, y} -> %Trebek.Freq{id: x, freq: y} end)
   end
 
   defp handle_diff(state, joins, leaves) do
