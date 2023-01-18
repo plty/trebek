@@ -10,11 +10,16 @@ defmodule Trebek.Freq do
   defstruct [:id, :freq]
 end
 
+defmodule Trebek.KV do
+  defstruct [:id, :k, :v]
+end
+
 defmodule TrebekWeb.MCQLive.Index do
   use TrebekWeb, :live_view
   alias Uniq.UUID
   alias Trebek.Choice
   alias Trebek.MCQ
+  alias Trebek.KV
 
   @impl true
   def mount(_params, _session, socket) do
@@ -58,6 +63,10 @@ defmodule TrebekWeb.MCQLive.Index do
      |> assign(:id, id)
      |> assign(:mcq, mcq)
      |> assign(:guess, nil)
+     |> assign(
+       :crdt,
+       Trebek.Credo.get() |> Map.to_list() |> Enum.map(fn {k, v} -> %KV{id: k, k: k, v: v} end)
+     )
      |> assign(:freqs, get_freqs())}
   end
 

@@ -11,7 +11,14 @@
   <:col :let={choice} label="Choices"><%= choice.s %></:col>
 </.table>
 
+FREQ
 <.table id="freqs" rows={@freqs}>
   <:col :let={freq} label="id"><%= freq.id %></:col>
   <:col :let={freq} label="freq"><%= freq.freq %></:col>
+</.table>
+
+CRDT
+<.table id="crdt" rows={@crdt}>
+  <:col :let={e} label="k"><%= e.k %></:col>
+  <:col :let={e} label="v"><%= e.v %></:col>
 </.table>
