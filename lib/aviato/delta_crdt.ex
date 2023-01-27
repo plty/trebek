@@ -68,11 +68,22 @@ defmodule Aviato.DeltaCrdt do
       |> Enum.into(%{})
       |> Map.put(:members, members)
 
+    self = Node.self()
+
+    neighbors =
+      members
+      |> Enum.filter(fn member -> member != {opts[:name], self} end)
+      |> Enum.map(fn {_, node} -> {opts[:crdt], node} end)
+
+    DeltaCrdt.set_neighbours(opts[:crdt], neighbors)
+
     {:ok, state}
   end
 
   @impl true
   def handle_call({:set_members, members}, _from, state = %{crdt: crdt, name: name}) do
+    IO.inspect(["SET MEMBERS", members])
+
     neighbors =
       members
       |> Stream.filter(fn member -> member != {name, Node.self()} end)
@@ -85,6 +96,7 @@ defmodule Aviato.DeltaCrdt do
 
   @impl true
   def handle_call(:members, _from, state = %{members: members}) do
+    IO.inspect(["WHO MEMBERS", members])
     {:reply, MapSet.to_list(members), state}
   end
 end
