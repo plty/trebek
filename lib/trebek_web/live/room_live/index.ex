@@ -26,7 +26,7 @@ defmodule TrebekWeb.RoomLive.Index do
      socket
      |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
      |> assign(:room_id, room_id)
-     |> assign(:question, Trebek.Credo.get("problem:" <> room_id, nil))
+     |> assign(:question, Trebek.Credo.get("problem:" <> room_id))
      |> assign(:current_user, id)
      |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
   end
@@ -51,7 +51,7 @@ defmodule TrebekWeb.RoomLive.Index do
 
   @impl true
   def handle_event("submit", %{"response" => %{"answer" => a}}, socket) do
-    Trebek.Credo.put("answer:" <> socket.assigns.room_id <> ":" <> socket.assigns.current_user, a)
+    Trebek.Credo.put("answer." <> socket.assigns.room_id, a)
 
     {:noreply, socket}
   end

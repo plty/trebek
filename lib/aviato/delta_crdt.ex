@@ -6,9 +6,8 @@ defmodule Aviato.DeltaCrdt do
 
       opts =
         opts
-        |> Keyword.put_new(:cluster_mod, {cluster || Aviato.DeltaCrdt, []})
-        |> Keyword.put_new(:cluster_name, cluster || __MODULE__)
-        |> Keyword.put_new(:crdt_mod, :"#{__MODULE__}.Crdt")
+        |> Keyword.put_new(:cluster_name, :"#{__MODULE__}.Monitor")
+        |> Keyword.put_new(:crdt_mod, __MODULE__)
         |> Keyword.put_new(:crdt_opts, [])
 
       @crdt opts[:crdt_mod]
@@ -17,40 +16,31 @@ defmodule Aviato.DeltaCrdt do
         use Supervisor
 
         @cluster_name opts[:cluster_name]
-        @cluster_mod opts[:cluster_mod]
         @crdt opts[:crdt_mod]
         @crdt_opts opts[:crdt_opts]
 
         def start_link(init_opts) do
-          IO.inspect(["init_opts", init_opts])
-          IO.inspect(["crdt_opts", @crdt_opts])
           Supervisor.start_link(__MODULE__, init_opts, name: __MODULE__)
         end
 
         @impl true
         def init(init_opts) do
-          IO.inspect(["init_opts", init_opts])
-          IO.inspect(["crdt_opts", @crdt_opts])
-
           crdt_opts =
-            [crdt: DeltaCrdt.AWLWWMap]
+            [
+              crdt: DeltaCrdt.AWLWWMap,
+              on_diffs: fn diff -> IO.inspect(["diff", Node.self(), diff]) end,
+              name: @crdt
+            ]
             |> Keyword.merge(@crdt_opts)
             |> Keyword.merge(init_opts)
-            |> Keyword.put(:name, @crdt)
 
-          {cluster_mod, cluster_opts} = @cluster_mod
-
-          cluster_opts =
-            [crdt: @crdt, name: @cluster_name]
-            |> Keyword.merge(cluster_opts)
-            |> Keyword.merge(init_opts)
-
-          IO.inspect(["bingung:", cluster_mod, cluster_opts])
+          IO.inspect(["crdt_opts", crdt_opts])
+          IO.inspect(["cluster_name", @cluster_name])
 
           children = [
             {DeltaCrdt, crdt_opts},
-            {Horde.NodeListener, @cluster_name},
-            {cluster_mod, cluster_opts}
+            {Aviato.DeltaCrdt, [crdt: @crdt, name: @cluster_name]},
+            {Horde.NodeListener, @cluster_name}
           ]
 
           Supervisor.init(children, strategy: :one_for_one)
