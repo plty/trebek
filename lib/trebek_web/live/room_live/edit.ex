@@ -16,14 +16,7 @@ defmodule TrebekWeb.RoomLive.Edit do
 
   @impl true
   def handle_event("save", %{"problem" => %{"question" => q}}, socket) do
-    Trebek.Credo.put("problem:" <> socket.assigns.room_id, q)
-
-    TrebekWeb.Endpoint.broadcast(
-      "room:" <> socket.assigns.room_id,
-      "question_changed",
-      q
-    )
-
+    Trebek.Credo.put({"room<#{socket.assigns.room_id}>", "problem"}, q)
     {:noreply, socket}
   end
 end

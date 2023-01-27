@@ -23,7 +23,6 @@ defmodule TrebekWeb.AuthPipeline do
   plug :fetch_current_user
 
   def fetch_current_user(conn, _opts) do
-    IO.inspect(["CURRENT USER", TrebekWeb.Guardian.Plug.current_resource(conn)])
     conn |> assign(:current_user, TrebekWeb.Guardian.Plug.current_resource(conn))
   end
 end

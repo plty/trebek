@@ -13,13 +13,8 @@ defmodule Trebek.Credo do
     DeltaCrdt.get(__MODULE__, k)
   end
 
-  def handle_call({:set_members, members}, from, state) do
-    IO.inspect("bebonghong?")
-    Aviato.DeltaCrdt.handle_call({:set_members, members}, from, state)
-  end
-
-  def handle_call(:members, from, state) do
-    IO.inspect("satjingkasler?")
-    Aviato.DeltaCrdt.handle_call(:members, from, state)
+  def subscribe(topic) do
+    IO.inspect(["OwO", "#{__MODULE__}::#{topic}"])
+    Phoenix.PubSub.subscribe(Trebek.PubSub, "#{__MODULE__}::#{topic}")
   end
 end

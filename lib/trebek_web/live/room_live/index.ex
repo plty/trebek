@@ -16,7 +16,7 @@ defmodule TrebekWeb.RoomLive.Index do
         })
 
       Phoenix.PubSub.subscribe(Trebek.PubSub, presence_id)
-      TrebekWeb.Endpoint.subscribe("room:" <> room_id)
+      Trebek.Credo.subscribe("room<#{room_id}>")
     end
 
     # TODO(optimize): check whether publishing the whole list or presence-diffs
@@ -26,7 +26,7 @@ defmodule TrebekWeb.RoomLive.Index do
      socket
      |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
      |> assign(:room_id, room_id)
-     |> assign(:question, Trebek.Credo.get("problem:" <> room_id))
+     |> assign(:question, Trebek.Credo.get({"room<#{room_id}>", "problem"}))
      |> assign(:current_user, id)
      |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
   end
@@ -45,8 +45,9 @@ defmodule TrebekWeb.RoomLive.Index do
   end
 
   @impl true
-  def handle_info(%{event: "question_changed", payload: q}, socket) do
-    {:noreply, socket |> assign(:question, q)}
+  def handle_info(%Aviato.DeltaCrdt.Diffs{diffs: diffs}, socket) do
+    IO.inspect(["O.o", diffs])
+    {:noreply, socket}
   end
 
   @impl true

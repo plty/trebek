@@ -1,4 +1,9 @@
 # copied from https://jumpwire.ai/blog/in-memory-distributed-state-with-delta-crdts
+
+defmodule Aviato.DeltaCrdt.Diffs do
+  defstruct [:module, :partition, :diffs]
+end
+
 defmodule Aviato.DeltaCrdt do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
@@ -22,7 +27,7 @@ defmodule Aviato.DeltaCrdt do
           crdt_opts =
             [
               crdt: DeltaCrdt.AWLWWMap,
-              on_diffs: fn diff -> IO.inspect(["diff", Node.self(), diff]) end,
+              on_diffs: &on_diffs/1,
               name: @crdt_name
             ]
             |> Keyword.merge(init_opts)
@@ -34,6 +39,39 @@ defmodule Aviato.DeltaCrdt do
           ]
 
           Supervisor.init(children, strategy: :one_for_one)
+        end
+
+        def partition_of(diff) do
+          case diff do
+            {:add, {p, _k}, _v} ->
+              p
+
+            {:remove, {p, _k}} ->
+              p
+          end
+        end
+
+        def on_diffs(diffs) do
+          IO.inspect([".-.", diffs])
+
+          diffs
+          |> Enum.sort_by(&partition_of/1)
+          |> Enum.chunk_by(&partition_of/1)
+          |> Enum.each(fn diffs ->
+            IO.inspect(["UwU", "#{@crdt_name}::#{partition_of(hd(diffs))}"])
+
+            partition = partition_of(hd(diffs))
+
+            Phoenix.PubSub.local_broadcast(
+              Trebek.PubSub,
+              "#{@crdt_name}::#{partition}",
+              %Aviato.DeltaCrdt.Diffs{
+                module: @crdt_name,
+                partition: partition,
+                diffs: diffs
+              }
+            )
+          end)
         end
       end
 
