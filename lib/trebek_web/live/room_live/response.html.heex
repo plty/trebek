@@ -1,0 +1,27 @@
+<div class="space-y-4">
+  <div>
+    <%= if @question do %>
+      <%= @question %>
+      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
+        <.input field={{r, :answer}} type="text" label="Answer" />
+        <:actions>
+          <.button phx-disable-with="Submitting...">Submit</.button>
+        </:actions>
+      </.simple_form>
+    <% else %>
+      Question: unset
+    <% end %>
+  </div>
+</div>
+
+<div>
+  <.table id="responses" rows={@responses}>
+    <:col :let={freq} label="id"><%= freq.id %></:col>
+    <:col :let={freq} label="freq"><%= freq.freq %></:col>
+    <:col :let={freq} label="upvote">
+      <.button phx-click="upvote" phx-value-response={freq.id}>
+        ↑
+      </.button>
+    </:col>
+  </.table>
+</div>
