@@ -2,22 +2,16 @@
 defmodule Aviato.DeltaCrdt do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      cluster = opts[:cluster]
-
       opts =
         opts
-        |> Keyword.put_new(:cluster_name, :"#{__MODULE__}.Monitor")
-        |> Keyword.put_new(:crdt_mod, __MODULE__)
-        |> Keyword.put_new(:crdt_opts, [])
-
-      @crdt opts[:crdt_mod]
+        |> Keyword.put_new(:monitor_name, :"#{__MODULE__}.Monitor")
+        |> Keyword.put_new(:crdt_name, __MODULE__)
 
       defmodule CrdtSupervisor do
         use Supervisor
 
-        @cluster_name opts[:cluster_name]
-        @crdt opts[:crdt_mod]
-        @crdt_opts opts[:crdt_opts]
+        @monitor_name opts[:monitor_name]
+        @crdt_name opts[:crdt_name]
 
         def start_link(init_opts) do
           Supervisor.start_link(__MODULE__, init_opts, name: __MODULE__)
@@ -29,15 +23,14 @@ defmodule Aviato.DeltaCrdt do
             [
               crdt: DeltaCrdt.AWLWWMap,
               on_diffs: fn diff -> IO.inspect(["diff", Node.self(), diff]) end,
-              name: @crdt
+              name: @crdt_name
             ]
-            |> Keyword.merge(@crdt_opts)
             |> Keyword.merge(init_opts)
 
           children = [
             {DeltaCrdt, crdt_opts},
-            {Aviato.DeltaCrdt, [crdt: @crdt, name: @cluster_name]},
-            {Horde.NodeListener, @cluster_name}
+            {Aviato.DeltaCrdt, [crdt: @crdt_name, name: @monitor_name]},
+            {Horde.NodeListener, @monitor_name}
           ]
 
           Supervisor.init(children, strategy: :one_for_one)

@@ -1,6 +1,10 @@
 defmodule TrebekWeb.Router do
   use TrebekWeb, :router
 
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +12,8 @@ defmodule TrebekWeb.Router do
     plug :put_root_layout, {TrebekWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+
+    plug Trebek.AuthPipeline
   end
 
   pipeline :api do
@@ -24,6 +30,14 @@ defmodule TrebekWeb.Router do
       live "/room/:id", RoomLive.Index, :index
       live "/room/:id/manage", RoomLive.Edit, :index
     end
+  end
+
+  scope "/auth", TrebekWeb do
+    pipe_through [:browser]
+
+    get "/", AuthController, :index
+    post "/login", AuthController, :login
+    get "/logout", AuthController, :logout
   end
 
   # Other scopes may use custom stacks.
