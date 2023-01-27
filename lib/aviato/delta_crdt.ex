@@ -34,9 +34,6 @@ defmodule Aviato.DeltaCrdt do
             |> Keyword.merge(@crdt_opts)
             |> Keyword.merge(init_opts)
 
-          IO.inspect(["crdt_opts", crdt_opts])
-          IO.inspect(["cluster_name", @cluster_name])
-
           children = [
             {DeltaCrdt, crdt_opts},
             {Aviato.DeltaCrdt, [crdt: @crdt, name: @cluster_name]},
@@ -82,8 +79,6 @@ defmodule Aviato.DeltaCrdt do
 
   @impl true
   def handle_call({:set_members, members}, _from, state = %{crdt: crdt, name: name}) do
-    IO.inspect(["SET MEMBERS", members])
-
     neighbors =
       members
       |> Stream.filter(fn member -> member != {name, Node.self()} end)
@@ -96,7 +91,6 @@ defmodule Aviato.DeltaCrdt do
 
   @impl true
   def handle_call(:members, _from, state = %{members: members}) do
-    IO.inspect(["WHO MEMBERS", members])
     {:reply, MapSet.to_list(members), state}
   end
 end
