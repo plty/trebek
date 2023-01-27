@@ -60,7 +60,7 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :trebek, Trebek.Guardian,
+config :trebek, TrebekWeb.Guardian,
   issuer: "trebek",
   secret_key: "MuKrU3IktLIiisRDCoQZ07ud1mIIrx+qRScuasLMU3j0dmybpq8IrWlhTze6b6zc"
 

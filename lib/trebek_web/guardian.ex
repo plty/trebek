@@ -1,8 +1,8 @@
-defmodule Trebek.Guardian.User do
+defmodule TrebekWeb.Guardian.User do
   defstruct [:id, :username]
 end
 
-defmodule Trebek.Guardian do
+defmodule TrebekWeb.Guardian do
   use Guardian, otp_app: :trebek
 
   def subject_for_token(resource = %{id: id}, claims) do
@@ -21,6 +21,6 @@ defmodule Trebek.Guardian do
     # found in the `"sub"` key. In above `subject_for_token/2` we returned
     # the resource id so here we'll rely on that to look it up.
     IO.inspect(["RESOURCE FROM CLAIMS", claims])
-    {:ok, %Trebek.Guardian.User{id: claims["id"], username: claims["username"]}}
+    {:ok, %TrebekWeb.Guardian.User{id: claims["id"], username: claims["username"]}}
   end
 end

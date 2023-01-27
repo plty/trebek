@@ -13,7 +13,7 @@ defmodule TrebekWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
 
-    plug Trebek.AuthPipeline
+    plug TrebekWeb.AuthPipeline
   end
 
   pipeline :api do
@@ -24,8 +24,12 @@ defmodule TrebekWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
 
-    live_session :default do
+  scope "/", TrebekWeb do
+    pipe_through [:browser, :ensure_auth]
+
+    live_session :default, on_mount: [TrebekWeb.AuthLive, TrebekWeb.EnsureAuthLive] do
       live "/mcqs", MCQLive.Index, :index
       live "/room/:id", RoomLive.Index, :index
       live "/room/:id/manage", RoomLive.Edit, :index

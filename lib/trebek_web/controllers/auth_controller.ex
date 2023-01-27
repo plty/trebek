@@ -11,13 +11,13 @@ defmodule TrebekWeb.AuthController do
     user = %{id: id, username: username}
 
     conn
-    |> Trebek.Guardian.Plug.sign_in(user, user)
+    |> TrebekWeb.Guardian.Plug.sign_in(user, user)
     |> redirect(to: ~p"/")
   end
 
   def logout(conn, _params) do
     conn
-    |> Trebek.Guardian.Plug.sign_out()
+    |> TrebekWeb.Guardian.Plug.sign_out()
     |> redirect(to: ~p"/auth")
   end
 end
