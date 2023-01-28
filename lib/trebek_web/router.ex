@@ -31,7 +31,8 @@ defmodule TrebekWeb.Router do
 
     live_session :default, on_mount: [TrebekWeb.AuthLive, TrebekWeb.EnsureAuthLive] do
       live "/mcqs", MCQLive.Index, :index
-      live "/room/:id", RoomLive.Index, :index
+      live "/room", RoomLive.Index, :index
+      live "/room/:id", RoomLive.Show, :index
       live "/room/:id/manage", RoomLive.Edit, :index
     end
   end

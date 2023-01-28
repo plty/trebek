@@ -1,55 +1,23 @@
 <div class="space-y-4">
   <table>
     <tr>
-      <td>user</td>
+      <td class="px-4">user</td>
       <td>
-        <%= @current_user %>
+        <%= if @current_user do %>
+          <%= @current_user.username %>:<%= @current_user.id %>
+        <% else %>
+          nouser
+        <% end %>
       </td>
     </tr>
     <tr>
-      <td>server</td>
+      <td class="px-4">server</td>
       <td>
         <%= Node.self() %>
       </td>
     </tr>
   </table>
 
-  <div>
-    <%= if @question do %>
-      Question: <%= @question %>
-      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
-        <.input field={{r, :answer}} type="text" label="Answer" />
-        <:actions>
-          <.button phx-disable-with="Submitting...">Submit</.button>
-        </:actions>
-      </.simple_form>
-    <% else %>
-      Question: unset
-    <% end %>
-  </div>
-  <div>
-    <h2>Users online:</h2>
-    <table>
-      <%= for {{user, session}, meta} <- @users do %>
-        <tr>
-          <td>
-            <%= user %> - <%= meta[:srv] %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-  </div>
 
-  <div>
-    <h2>Nodes online:</h2>
-    <table>
-      <%= for node <- @nodes do %>
-        <tr>
-          <td>
-            <%= node %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-  </div>
+  <.button phx-click="create-room" phx-disable-with="Creating...">Create Room</.button>
 </div>

@@ -1,7 +1,7 @@
-# copied from https://jumpwire.ai/blog/in-memory-distributed-state-with-delta-crdts
+# adapted from https://jumpwire.ai/blog/in-memory-distributed-state-with-delta-crdts
 
 defmodule Aviato.DeltaCrdt.Diffs do
-  defstruct [:module, :partition, :diffs]
+  defstruct [:module, :topic, :diffs]
 end
 
 defmodule Aviato.DeltaCrdt do
@@ -41,7 +41,7 @@ defmodule Aviato.DeltaCrdt do
           Supervisor.init(children, strategy: :one_for_one)
         end
 
-        def partition_of(diff) do
+        def topic_of(diff) do
           case diff do
             {:add, {p, _k}, _v} ->
               p
@@ -55,19 +55,19 @@ defmodule Aviato.DeltaCrdt do
           IO.inspect([".-.", diffs])
 
           diffs
-          |> Enum.sort_by(&partition_of/1)
-          |> Enum.chunk_by(&partition_of/1)
+          |> Enum.sort_by(&topic_of/1)
+          |> Enum.chunk_by(&topic_of/1)
           |> Enum.each(fn diffs ->
-            IO.inspect(["UwU", "#{@crdt_name}::#{partition_of(hd(diffs))}"])
+            IO.inspect(["UwU", "#{@crdt_name}::#{topic_of(hd(diffs))}"])
 
-            partition = partition_of(hd(diffs))
+            topic = topic_of(hd(diffs))
 
             Phoenix.PubSub.local_broadcast(
               Trebek.PubSub,
-              "#{@crdt_name}::#{partition}",
+              "#{@crdt_name}::#{topic}",
               %Aviato.DeltaCrdt.Diffs{
                 module: @crdt_name,
-                partition: partition,
+                topic: topic,
                 diffs: diffs
               }
             )

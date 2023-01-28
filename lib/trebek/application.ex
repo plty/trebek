@@ -23,8 +23,9 @@ defmodule Trebek.Application do
       {Cluster.Supervisor, [topologies, [name: Trebek.ClusterSupervisor]]},
       {Phoenix.PubSub, name: Trebek.PubSub},
       {Finch, name: Trebek.Finch},
-      {Horde.Registry, [name: Trebek.Registry, keys: :unique]},
-      {Horde.DynamicSupervisor, [name: Trebek.DynamicSupervisor, strategy: :one_for_one]},
+      {Horde.Registry, [name: Trebek.Registry, keys: :unique, members: :auto]},
+      {Horde.DynamicSupervisor,
+       [name: Trebek.DynamicSupervisor, strategy: :one_for_one, members: :auto]},
       Trebek.Credo,
       TrebekWeb.Presence,
       TrebekWeb.Endpoint
