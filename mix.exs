@@ -57,7 +57,8 @@ defmodule Trebek.MixProject do
       {:delta_crdt, "~> 0.6.4"},
       {:horde, "~> 0.8"},
       {:circular_buffer, "~> 0.4.0"},
-      {:guardian, "~> 2.0"}
+      {:guardian, "~> 2.0"},
+      {:argon2_elixir, "~> 2.0"}
     ]
   end
 

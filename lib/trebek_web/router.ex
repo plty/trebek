@@ -43,6 +43,8 @@ defmodule TrebekWeb.Router do
     get "/", AuthController, :index
     post "/login", AuthController, :login
     get "/logout", AuthController, :logout
+    get "/register", AuthController, :register_page
+    post "/register", AuthController, :register
   end
 
   # Other scopes may use custom stacks.

@@ -1,0 +1,16 @@
+<.simple_form :let={r} for={:user} id="login-form" action={~p"/auth/register"}>
+  <.input field={{r, :username}} type="text" label="username" />
+  <.input field={{r, :password}} type="text" label="password" />
+  <:actions>
+    <.button phx-disable-with="...">Submit</.button>
+  </:actions>
+</.simple_form>
+
+<div>
+  <.link
+    navigate={~p"/auth"}
+    class="text-sm underline leading-6 text-zinc-900 hover:text-zinc-700"
+  >
+    Already have an account?
+  </.link>
+</div>
