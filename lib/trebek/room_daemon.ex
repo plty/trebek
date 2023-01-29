@@ -6,12 +6,22 @@ defmodule Trebek.RoomDaemon do
   use GenServer
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
+    opts = opts |> Enum.into(%{})
+
+    case GenServer.start_link(__MODULE__, opts, name: via_tuple(opts[:room])) do
+      {:ok, pid} ->
+        {:ok, pid}
+
+      {:error, {:already_started, _pid}} ->
+        :ignore
+    end
   end
 
   def subscribe(room) do
     Phoenix.PubSub.subscribe(Trebek.PubSub, "#{__MODULE__}<#{room}>")
   end
+
+  def via_tuple(room), do: {:via, Horde.Registry, {Trebek.Registry, "#{__MODULE__}<#{room}>"}}
 
   @impl true
   def init(opts) do
@@ -22,8 +32,35 @@ defmodule Trebek.RoomDaemon do
     {:ok, %{room: room, problem: problem}}
   end
 
+  def update_freqs(prev_freqs, diffs) do
+    adds =
+      diffs
+      |> Enum.flat_map(fn d ->
+        case d do
+          {:add, {_, {:vote, q, _}}, _} -> [q]
+          _ -> []
+        end
+      end)
+      |> Enum.frequencies()
+
+    removes =
+      diffs
+      |> Enum.flat_map(fn d ->
+        case d do
+          {:remove, {_, {:vote, q, _}}} -> [q]
+          _ -> []
+        end
+      end)
+      |> Enum.frequencies()
+      |> Map.new(fn {k, f} -> {k, -f} end)
+
+    prev_freqs
+    |> Map.merge(adds, fn _, u, v -> u + v end)
+    |> Map.merge(removes, fn _, u, v -> u + v end)
+  end
+
   @impl true
-  def handle_info(%Aviato.DeltaCrdt.Diffs{diffs: diffs}, state) do
+  def handle_info(%Aviato.Diffs{diffs: diffs}, state) do
     problem =
       diffs
       |> Enum.reduce(state[:problem], fn d, p ->
@@ -34,15 +71,19 @@ defmodule Trebek.RoomDaemon do
         end
       end)
 
+    pub(:prompt_update, state[:room], problem)
+
+    {:noreply, %{state | problem: problem}}
+  end
+
+  def pub(:prompt_update, room, problem) do
     Phoenix.PubSub.broadcast(
       Trebek.PubSub,
-      "#{__MODULE__}<#{state[:room]}>",
+      "#{__MODULE__}<#{room}>",
       %Trebek.RoomDaemon.Event{
-        event: :problem_update,
+        event: :prompt_update,
         payload: %{problem: problem}
       }
     )
-
-    {:noreply, %{state | problem: problem}}
   end
 end

@@ -25,7 +25,6 @@ defmodule TrebekWeb.MCQLive.Index do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       TrebekWeb.Endpoint.subscribe("freqs")
-      # Trebek.Credo.subscribe("room<#{room_id}>")
     end
 
     id = UUID.uuid7()

@@ -8,13 +8,14 @@ defmodule TrebekWeb.RoomLive.Index do
 
   @impl true
   def handle_event("create-room", _params, socket) do
-    petname = Petname.gen()
+    room_id = Petname.gen()
+    Trebek.Credo.put({"room<#{room_id}>", :owner}, socket.assigns.current_user)
 
     Horde.DynamicSupervisor.start_child(
       Trebek.DynamicSupervisor,
-      {Trebek.RoomDaemon, room: petname}
+      {Trebek.RoomDaemon, room: room_id}
     )
 
-    {:noreply, socket |> redirect(to: "/room/#{petname}")}
+    {:noreply, socket |> redirect(to: "/room/#{room_id}")}
   end
 end

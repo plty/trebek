@@ -1,7 +1,27 @@
 # adapted from https://jumpwire.ai/blog/in-memory-distributed-state-with-delta-crdts
 
-defmodule Aviato.DeltaCrdt.Diffs do
+defmodule Aviato.Diffs do
   defstruct [:module, :topic, :diffs]
+
+  def filter_adds(l) do
+    l
+    |> Enum.filter(fn d ->
+      case d do
+        {:add, _, _} -> true
+        _ -> false
+      end
+    end)
+  end
+
+  def filter_removes(l) do
+    l
+    |> Enum.filter(fn d ->
+      case d do
+        {:remove, _} -> true
+        _ -> false
+      end
+    end)
+  end
 end
 
 defmodule Aviato.DeltaCrdt do
@@ -65,7 +85,7 @@ defmodule Aviato.DeltaCrdt do
             Phoenix.PubSub.local_broadcast(
               Trebek.PubSub,
               "#{@crdt_name}::#{topic}",
-              %Aviato.DeltaCrdt.Diffs{
+              %Aviato.Diffs{
                 module: @crdt_name,
                 topic: topic,
                 diffs: diffs
