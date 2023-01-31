@@ -7,26 +7,30 @@ defmodule TrebekWeb.RoomLive.Show do
   def mount(%{"id" => room_id}, _session, socket) do
     presence_id = "presence:room:" <> room_id
 
-    if connected?(socket) do
-      {:ok, _} =
-        Presence.track(self(), presence_id, socket.assigns.current_user.id, %{
-          session: UUID.uuid7(),
-          srv: Node.self()
-        })
+    unless Trebek.Credo.get({"room<#{room_id}>", :owner}) do
+      {:ok, socket |> redirect(to: "/room")}
+    else
+      if connected?(socket) do
+        {:ok, _} =
+          Presence.track(self(), presence_id, socket.assigns.current_user.id, %{
+            session: UUID.uuid7(),
+            srv: Node.self()
+          })
 
-      Phoenix.PubSub.subscribe(Trebek.PubSub, presence_id)
-      Trebek.RoomDaemon.subscribe(room_id)
+        Phoenix.PubSub.subscribe(Trebek.PubSub, presence_id)
+        Trebek.RoomDaemon.subscribe(room_id)
+      end
+
+      # TODO(optimize): check whether publishing the whole list or presence-diffs
+      # on each socket is cheaper. pubsub is non-zero memory-cost operation in
+      # erlang. try bench with thousands of user.
+      {:ok,
+       socket
+       |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
+       |> assign(:room_id, room_id)
+       |> assign(:question, Trebek.Credo.get({"room<#{room_id}>", :problem}))
+       |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
     end
-
-    # TODO(optimize): check whether publishing the whole list or presence-diffs
-    # on each socket is cheaper. pubsub is non-zero memory-cost operation in
-    # erlang. try bench with thousands of user.
-    {:ok,
-     socket
-     |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
-     |> assign(:room_id, room_id)
-     |> assign(:question, Trebek.Credo.get({"room<#{room_id}>", :problem}))
-     |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
   end
 
   @impl true
