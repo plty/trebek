@@ -1,12 +1,19 @@
 <%= if @current_user do %>
   <div>
-    <%= @current_user.username %>
-    <%= @current_user.id %>
+    <p class="text-xl">Welcome, <%= @current_user.username %> !</p>
+    <p class="text-gray-800">ID: <b><%= @current_user.id %></b></p>
+    <p class="text-sm text-red-500 mb-5">*please save your id for login</p>
   </div>
   <div>
+    <a
+      href="/room"
+      class="text-sm px-3 py-2 my-3 font-semibold leading-6 text-white hover:text-zinc-700 rounded-full bg-emerald-500"
+    >
+      Go to Room
+    </a>
     <.link
       navigate={~p"/auth/logout"}
-      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+      class="text-sm px-3 py-2 my-3 ml-3 font-semibold leading-6 text-white hover:text-zinc-700 rounded-full bg-rose-400"
     >
       logout
     </.link>

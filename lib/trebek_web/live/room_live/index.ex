@@ -18,4 +18,9 @@ defmodule TrebekWeb.RoomLive.Index do
 
     {:noreply, socket |> redirect(to: "/room/#{room_id}")}
   end
+
+  @impl true
+  def handle_event("go", %{"room" => %{"room_id" => id}}, socket) do
+    {:noreply, socket |> redirect(to: "/room/" <> id)}
+  end
 end
