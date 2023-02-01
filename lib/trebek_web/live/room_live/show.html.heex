@@ -1,13 +1,13 @@
 <div class="space-y-4">
   <table>
     <tr>
-      <td>user</td>
+      <td>user:</td>
       <td>
-       <%= @current_user.username %>:<%= @current_user.id %>
+        <%= @current_user.username %>:<%= @current_user.id %>
       </td>
     </tr>
     <tr>
-      <td>server</td>
+      <td>server:</td>
       <td>
         <%= Node.self() %>
       </td>
@@ -27,6 +27,19 @@
       Question: unset
     <% end %>
   </div>
+
+  <div>
+    <.table id="responses" rows={@responses}>
+      <:col :let={freq} label="resp"><%= freq.resp %></:col>
+      <:col :let={freq} label="freq"><%= freq.freq %></:col>
+      <:col :let={freq} label="upvote">
+        <.button phx-click="upvote" phx-value-response={freq.id}>
+          ↑
+        </.button>
+      </:col>
+    </.table>
+  </div>
+
   <div>
     <h2>Users online:</h2>
     <table>

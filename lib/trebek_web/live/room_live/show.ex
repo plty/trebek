@@ -1,3 +1,7 @@
+defmodule Trebek.Show.Freq do
+  defstruct [:id, :resp, :freq]
+end
+
 defmodule TrebekWeb.RoomLive.Show do
   use TrebekWeb, :live_view
   alias Uniq.UUID
@@ -19,6 +23,7 @@ defmodule TrebekWeb.RoomLive.Show do
 
         Phoenix.PubSub.subscribe(Trebek.PubSub, presence_id)
         Trebek.RoomDaemon.subscribe(room_id)
+        TrebekWeb.Endpoint.subscribe("room:" <> room_id <> ":response")
       end
 
       # TODO(optimize): check whether publishing the whole list or presence-diffs
@@ -29,7 +34,8 @@ defmodule TrebekWeb.RoomLive.Show do
        |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
        |> assign(:room_id, room_id)
        |> assign(:question, Trebek.Credo.get({"room<#{room_id}>", :problem}))
-       |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))}
+       |> assign(:users, %{} |> handle_diff(Presence.list(presence_id), %{}))
+       |> assign(:responses, get_responses(room_id))}
     end
   end
 
@@ -62,8 +68,41 @@ defmodule TrebekWeb.RoomLive.Show do
   end
 
   @impl true
+  def handle_info(%{event: "response_changed", payload: r}, socket) do
+    {:noreply, socket |> assign(:responses, r)}
+  end
+
+  @impl true
+  def handle_event("upvote", %{"response" => id}, socket) do
+    Trebek.Credo.put(
+      {"room<#{socket.assigns.room_id}>vote", {id, socket.assigns.current_user.id}},
+      1
+    )
+
+    TrebekWeb.Endpoint.broadcast(
+      "room:" <> socket.assigns.room_id <> ":response",
+      "response_changed",
+      get_responses(socket.assigns.room_id)
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("submit", %{"response" => %{"answer" => a}}, socket) do
-    Trebek.Credo.put("answer." <> socket.assigns.room_id, a)
+    resp_id = UUID.uuid7()
+    Trebek.Credo.put({"room<#{socket.assigns.room_id}>response", resp_id}, a)
+
+    Trebek.Credo.put(
+      {"room<#{socket.assigns.room_id}>vote", {resp_id, socket.assigns.current_user.id}},
+      1
+    )
+
+    TrebekWeb.Endpoint.broadcast(
+      "room:" <> socket.assigns.room_id <> ":response",
+      "response_changed",
+      get_responses(socket.assigns.room_id)
+    )
 
     {:noreply, socket}
   end
@@ -90,5 +129,21 @@ defmodule TrebekWeb.RoomLive.Show do
     state
     |> Map.merge(Map.new(joins))
     |> Map.drop(leaves)
+  end
+
+  def get_responses(room_id) do
+    :maps.filter(
+      fn {topic, _id}, _y ->
+        topic == "room<#{room_id}>vote"
+      end,
+      Trebek.Credo.get()
+    )
+    |> Enum.map(fn {{_topic, {id, _uid}}, _y} -> id end)
+    |> Enum.frequencies()
+    |> Map.to_list()
+    |> Enum.map(fn {x, y} ->
+      %Trebek.Show.Freq{id: x, freq: y, resp: Trebek.Credo.get({"room<#{room_id}>response", x})}
+    end)
+    |> Enum.sort(fn l, r -> l.freq > r.freq end)
   end
 end
