@@ -6,6 +6,7 @@ defmodule TrebekWeb.RoomLive.Show do
   use TrebekWeb, :live_view
   alias Uniq.UUID
   alias TrebekWeb.Presence
+  alias TrebekWeb.RoomLive.DiscussionResponse
 
   @impl true
   def mount(%{"id" => room_id}, _session, socket) do
@@ -37,6 +38,9 @@ defmodule TrebekWeb.RoomLive.Show do
         id -> prompts_state.prompts |> Enum.filter(fn e -> e.id === id end)
       end
 
+    IO.inspect(["responses", responses])
+    IO.inspect(["bebong", Trebek.Credo.get()])
+
     # TODO(optimize): check whether publishing the whole list or presence-diffs
     # on each socket is cheaper. pubsub is non-zero memory-cost operation in
     # erlang. try bench with thousands of user.
@@ -46,7 +50,20 @@ defmodule TrebekWeb.RoomLive.Show do
       |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
       |> assign(:room_id, room_id)
       |> assign(:prompt, prompt)
-      |> assign(:responses, responses |> Trbeek)
+      |> assign(
+        :responses,
+        responses
+        |> Enum.map(fn r ->
+          %DiscussionResponse{
+            id: r.id,
+            prompt: r.prompt,
+            user: r.user,
+            content: r.content,
+            upvotes: vote_count |> Map.get(r.id, 0)
+          }
+        end)
+      )
+      |> assign(:vote_count, vote_count)
       |> assign(:users, %{} |> handle_diff(Presence.list(presence_topic), %{}))
     }
 
@@ -81,6 +98,27 @@ defmodule TrebekWeb.RoomLive.Show do
   end
 
   @impl true
+  def handle_info(%Trebek.RoomDaemon.Event{event: :responses, payload: {_, responses}}, socket) do
+    IO.inspect(["notresponses", responses])
+
+    {:noreply,
+     socket
+     |> assign(
+       responses:
+         responses
+         |> Enum.map(fn r ->
+           %DiscussionResponse{
+             id: r.id,
+             prompt: r.prompt,
+             user: r.user,
+             content: r.content,
+             upvotes: socket.assigns.vote_count |> Map.get(r.id, 0)
+           }
+         end)
+     )}
+  end
+
+  @impl true
   def handle_info(
         %Trebek.RoomDaemon.Event{event: :vote_update, payload: %{vote_count: vote_count}},
         socket
@@ -102,17 +140,45 @@ defmodule TrebekWeb.RoomLive.Show do
   end
 
   @impl true
-  def handle_event("submit", %{"response" => %{"prompt" => p, "answer" => a}}, socket) do
-    id = Uniq.UUID.uuid7()
+  def handle_event("submit", %{"response" => %{"content" => content}}, socket) do
+    current_user = socket.assigns.current_user
+    current_user_id = current_user.id
 
     Trebek.Credo.put(
-      {"room<#{socket.assigns.room_id}>", {:response, id}},
-      %{
-        prompt: p,
-        response: a
-      }
+      {"room<#{socket.assigns.room_id}>", {:responses, current_user_id}},
+      [
+        %{
+          id: Uniq.UUID.uuid7(),
+          prompt: socket.assigns.prompt.id,
+          user: current_user_id,
+          content: content
+        }
+        | socket.assigns.responses
+          |> Enum.flat_map(fn r ->
+            case r.user do
+              ^current_user_id ->
+                [
+                  %{
+                    id: r.id,
+                    prompt: r.prompt,
+                    user: r.user,
+                    content: r.content
+                  }
+                ]
+
+              _ ->
+                []
+            end
+          end)
+      ]
     )
 
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("upvote", %{"id" => _id}, socket) do
+    IO.inspect("UPDOOT")
     {:noreply, socket}
   end
 
