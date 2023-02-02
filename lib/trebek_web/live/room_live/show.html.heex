@@ -3,7 +3,7 @@
     <tr>
       <td>user</td>
       <td>
-       <%= @current_user.username %>:<%= @current_user.id %>
+        <%= @current_user.username %>:<%= @current_user.id %>
       </td>
     </tr>
     <tr>
@@ -15,16 +15,24 @@
   </table>
 
   <div>
-    <%= if @question do %>
-      Question: <%= @question %>
-      <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
-        <.input field={{r, :answer}} type="text" label="Answer" />
-        <:actions>
-          <.button phx-disable-with="Submitting...">Submit</.button>
-        </:actions>
-      </.simple_form>
+    <%= if @prompt do %>
+      <%= case @prompt.type do %>
+      <% :discussion -> %>
+        <div>
+          type: <%= @prompt.type %><br />
+        </div>
+        <div>
+          title: <%= @prompt.title %><br />
+        </div>
+        <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
+          <.input field={{r, :answer}} type="text" label="Answer" />
+          <:actions>
+            <.button phx-disable-with="Submitting...">Submit</.button>
+          </:actions>
+        </.simple_form>
+      <% end %>
     <% else %>
-      Question: unset
+      active prompt: unset
     <% end %>
   </div>
   <div>
@@ -34,19 +42,6 @@
         <tr>
           <td>
             <%= user %> - <%= meta[:srv] %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-  </div>
-
-  <div>
-    <h2>Nodes online:</h2>
-    <table>
-      <%= for node <- @nodes do %>
-        <tr>
-          <td>
-            <%= node %>
           </td>
         </tr>
       <% end %>
