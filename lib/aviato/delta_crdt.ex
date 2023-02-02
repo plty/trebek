@@ -3,24 +3,31 @@
 defmodule Aviato.Diffs do
   defstruct [:module, :topic, :diffs]
 
-  def filter_adds(l) do
-    l
-    |> Enum.filter(fn d ->
-      case d do
-        {:add, _, _} -> true
-        _ -> false
-      end
-    end)
+  def strip_topic(%Aviato.Diffs{diffs: diffs}) do
+    %Aviato.Diffs{
+      diffs:
+        diffs
+        |> Enum.map(fn d ->
+          case d do
+            {:add, {_t, k}, v} -> {:add, k, v}
+            {:remove, {_t, k}} -> {:remove, k}
+          end
+        end)
+    }
   end
 
-  def filter_removes(l) do
-    l
-    |> Enum.filter(fn d ->
-      case d do
-        {:remove, _} -> true
-        _ -> false
-      end
-    end)
+  def split(%Aviato.Diffs{diffs: diffs}) do
+    {adds, removes} =
+      diffs
+      |> Enum.split_with(fn d ->
+        case d do
+          {:add, _, _} -> true
+          {:remove, _} -> false
+        end
+      end)
+
+    {adds |> Enum.map(fn {:add, k, v} -> {k, v} end),
+     removes |> Enum.map(fn {:remove, k} -> k end)}
   end
 end
 
