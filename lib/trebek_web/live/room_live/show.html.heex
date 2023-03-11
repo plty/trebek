@@ -31,7 +31,7 @@
           </:actions>
         </.simple_form>
 
-        <.table id="responses" rows={@responses} row_click={&JS.push("upvote", value: %{id: &1.id})}>
+        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden))} row_click={&JS.push("upvote", value: %{id: &1.id})}>
           <:col :let={r} label="content"><%= r.content %></:col>
           <:col :let={r} label="upvotes"><%= r.upvotes %></:col>
         </.table>

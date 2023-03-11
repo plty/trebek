@@ -1,5 +1,5 @@
 defmodule TrebekWeb.RoomLive.DiscussionResponse do
-  defstruct [:id, :prompt, :user, :content, :upvotes]
+  defstruct [:id, :prompt, :user, :content, :upvotes, :hidden]
 end
 
 defmodule TrebekWeb.RoomLive.Show do
@@ -59,7 +59,8 @@ defmodule TrebekWeb.RoomLive.Show do
             prompt: r.prompt,
             user: r.user,
             content: r.content,
-            upvotes: vote_count |> Map.get(r.id, 0)
+            upvotes: vote_count |> Map.get(r.id, 0),
+            hidden: r.hidden
           }
         end)
       )
@@ -112,7 +113,8 @@ defmodule TrebekWeb.RoomLive.Show do
              prompt: r.prompt,
              user: r.user,
              content: r.content,
-             upvotes: socket.assigns.vote_count |> Map.get(r.id, 0)
+             upvotes: socket.assigns.vote_count |> Map.get(r.id, 0),
+             hidden: r.hidden
            }
          end)
      )}
@@ -150,7 +152,8 @@ defmodule TrebekWeb.RoomLive.Show do
           id: Uniq.UUID.uuid7(),
           prompt: socket.assigns.prompt.id,
           user: current_user_id,
-          content: content
+          content: content,
+          hidden: false
         }
         | socket.assigns.responses
           |> Enum.flat_map(fn r ->
@@ -161,7 +164,8 @@ defmodule TrebekWeb.RoomLive.Show do
                     id: r.id,
                     prompt: r.prompt,
                     user: r.user,
-                    content: r.content
+                    content: r.content,
+                    hidden: r.hidden
                   }
                 ]
 
