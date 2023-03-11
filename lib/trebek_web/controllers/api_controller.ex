@@ -21,6 +21,7 @@ defmodule TrebekWeb.APIController do
         case k do
           :owner -> {:owner, %{id: v.id, username: v.username}}
           {:responses, resp_id} -> {"response<#{resp_id}>", v}
+          {:votes, user_id} -> {"votes<#{user_id}>", v}
           k -> {k, v}
         end
       end)
