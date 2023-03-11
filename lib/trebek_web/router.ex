@@ -18,6 +18,8 @@ defmodule TrebekWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug TrebekWeb.AuthPipeline
   end
 
   scope "/", TrebekWeb do
@@ -52,6 +54,12 @@ defmodule TrebekWeb.Router do
     pipe_through :api
 
     get "/peers", APIController, :peers
+  end
+
+  scope "/api", TrebekWeb do
+    pipe_through [:api, :ensure_auth]
+
+    get "/export-response/:room_id", APIController, :export_response
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

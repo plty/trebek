@@ -1,3 +1,17 @@
+defmodule TupleEncoder do
+  alias Jason.Encoder
+
+  defimpl Encoder, for: Tuple do
+    @spec encode(tuple, Jason.Encode.opts()) ::
+            <<_::16>> | [binary | maybe_improper_list(any, binary | []) | byte, ...]
+    def encode(data, options) when is_tuple(data) do
+      data
+      |> Tuple.to_list()
+      |> Encoder.List.encode(options)
+    end
+  end
+end
+
 defmodule Trebek.Application do
   @moduledoc false
 

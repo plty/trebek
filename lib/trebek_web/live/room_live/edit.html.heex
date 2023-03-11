@@ -1,4 +1,6 @@
 <div>
+  <a href={"/api/export-response/#{@room_id}"} target="_blank">Download Responses</a>
+
   <.simple_form :let={f} for={:problem} id="mcq-form" phx-submit="save">
     <.input field={{f, :question}} type="text" label="Question" />
     <:actions>
