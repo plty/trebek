@@ -120,10 +120,9 @@ defmodule TrebekWeb.RoomLive.Show do
 
   @impl true
   def handle_info(
-        %Trebek.RoomDaemon.Event{event: :vote_update, payload: %{vote_count: vote_count}},
+        %Trebek.RoomDaemon.Event{event: :vote_count, payload: vote_count},
         socket
       ) do
-    IO.inspect(["o.O", vote_count])
     {:noreply, socket |> assign(vote_count: vote_count)}
   end
 
@@ -177,8 +176,19 @@ defmodule TrebekWeb.RoomLive.Show do
   end
 
   @impl true
-  def handle_event("upvote", %{"id" => _id}, socket) do
-    IO.inspect("UPDOOT")
+  def handle_event("upvote", %{"id" => id}, socket) do
+    current_user = socket.assigns.current_user
+    current_user_id = current_user.id
+
+    Trebek.Credo.put(
+      {"room<#{socket.assigns.room_id}>", {:votes, current_user_id}},
+      [
+        id
+        | Trebek.Credo.get({"room<#{socket.assigns.room_id}>", {:votes, current_user_id}}) || []
+      ]
+      |> Enum.uniq()
+    )
+
     {:noreply, socket}
   end
 
