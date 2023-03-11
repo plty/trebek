@@ -20,15 +20,15 @@ defmodule Trebek.Application do
   @impl true
   def start(_type, _args) do
     topologies = [
-      mesh_gossip: [
-        strategy: Cluster.Strategy.Gossip,
-        # TODO[low](jer): do multicast rather than broadcast :/ or not.
-        config: [
-          multicast_addr: "255.255.255.255",
-          broadcast_only: true,
-          secret: "shoosh"
-        ]
-      ]
+      # mesh_gossip: [
+      #   strategy: Cluster.Strategy.Gossip,
+      #   # TODO[low](jer): do multicast rather than broadcast :/ or not.
+      #   config: [
+      #     multicast_addr: "255.255.255.255",
+      #     broadcast_only: true,
+      #     secret: "shoosh"
+      #   ]
+      # ]
     ]
 
     children = [

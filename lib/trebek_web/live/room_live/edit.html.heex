@@ -1,10 +1,22 @@
 <div>
-  <a href={"/api/export-response/#{@room_id}"} target="_blank">Download Responses</a>
+  <div>
+    <a href={"/api/export-response/#{@room_id}"} target="_blank">Download Responses</a>
+  </div>
 
-  <.simple_form :let={f} for={:problem} id="mcq-form" phx-submit="save">
-    <.input field={{f, :question}} type="text" label="Question" />
-    <:actions>
-      <.button phx-disable-with="Submitting...">Submit</.button>
-    </:actions>
-  </.simple_form>
+  <div class="my-3">
+    <.button phx-click="add-prompt">Add Prompt</.button>
+  </div>
+
+  <%= for prompt <- @prompts_state.prompts do %>
+    <div class="bg-blue-500">
+
+    <.input type="checkbox" value={prompt.id == @prompts_state.active} label="Active" />
+    <.simple_form :let={f} for={:problem} phx-submit="save">
+      <.input field={{f, :question}} type="text" value={prompt.title} label="Question" />
+      <:actions>
+        <.button phx-disable-with="Submitting...">Submit</.button>
+      </:actions>
+    </.simple_form>
+    </div>
+  <% end %>
 </div>

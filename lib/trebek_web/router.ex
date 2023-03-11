@@ -19,6 +19,7 @@ defmodule TrebekWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug :fetch_session
+
     plug TrebekWeb.AuthPipeline
   end
 
