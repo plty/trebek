@@ -49,7 +49,12 @@ defmodule TrebekWeb.RoomLive.Show do
       socket
       |> assign(:nodes, Enum.sort([Node.self() | Node.list(:visible)]))
       |> assign(:room_id, room_id)
-      |> assign(:prompt, prompt)
+      |> assign(:room_owner, Trebek.Credo.get({"room<#{room_id}>", :owner}))
+      |> assign(
+        prompt: prompt,
+        can_vote: prompts_state.can_vote,
+        can_answer: prompts_state.can_answer
+      )
       |> assign(
         :responses,
         responses
@@ -95,7 +100,14 @@ defmodule TrebekWeb.RoomLive.Show do
       end
 
     IO.inspect(["O.o", prompts_state])
-    {:noreply, socket |> assign(prompt: prompt)}
+
+    {:noreply,
+     socket
+     |> assign(
+       prompt: prompt,
+       can_vote: prompts_state.can_vote,
+       can_answer: prompts_state.can_answer
+     )}
   end
 
   @impl true

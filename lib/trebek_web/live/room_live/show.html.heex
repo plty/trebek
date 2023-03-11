@@ -24,16 +24,24 @@
         <div>
           title: <%= @prompt.title %><br />
         </div>
+        
+        <%= if @can_answer || @current_user.id == @room_owner.id do %>
         <.simple_form :let={r} for={:response} id="mcq-form" phx-submit="submit">
           <.input field={{r, :content}} type="text" label="response" />
           <:actions>
             <.button phx-disable-with="Submitting...">Submit</.button>
           </:actions>
         </.simple_form>
+        <% end %>
 
-        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden))} row_click={&JS.push("upvote", value: %{id: &1.id})}>
+        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden))} >
           <:col :let={r} label="content"><%= r.content %></:col>
-          <:col :let={r} label="upvotes"><%= r.upvotes %></:col>
+          <:col :let={r} label="upvotes">
+            <%= if @can_vote || @current_user.id == @room_owner.id do %>
+              <.button phx-click="upvote" phx-value-id={r.id}> <Heroicons.chevron_up solid class="h-3 w-3 stroke-current" /> </.button>
+            <% end %>
+            <%= r.upvotes %>
+          </:col>
         </.table>
       <% end %>
     <% else %>

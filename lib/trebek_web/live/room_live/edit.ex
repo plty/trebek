@@ -19,6 +19,8 @@ defmodule TrebekWeb.RoomLive.Edit do
       {"room<#{socket.assigns.room_id}>", :prompts},
       %{
         active: id,
+        can_answer: false,
+        can_vote: false,
         prompts: [%{id: id, type: :discussion, title: q}]
       }
     )

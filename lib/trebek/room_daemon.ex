@@ -71,6 +71,8 @@ defmodule Trebek.RoomDaemon do
              topic: String.t(),
              prompts_state: %{
                active: nil | Uniq.UUID.t(),
+               can_answer: boolean(),
+               can_vote: boolean(),
                prompts: [prompt()]
              },
              votes_state: %{
@@ -119,7 +121,7 @@ defmodule Trebek.RoomDaemon do
 
     prompts =
       partitioned
-      |> Map.get(:prompts, [%{active: nil, prompts: []}])
+      |> Map.get(:prompts, [%{active: nil, can_answer: false, can_vote: false, prompts: []}])
       |> hd()
 
     vote_count = votes |> Map.values() |> List.flatten() |> Enum.frequencies()
