@@ -1,4 +1,4 @@
-<%= if @current_user do %>
+<%= if !@is_guest do %>
   <div>
     <%= @current_user.username %>
     <%= @current_user.id %>
@@ -12,6 +12,23 @@
     </.link>
   </div>
 <% else %>
+
+  <%= if @current_user do %>
+    <div>
+      You are logged in as guest:
+      <%= @current_user.username %>
+      <%= @current_user.id %>
+    </div>
+    <div>
+      <.link
+        navigate={~p"/auth"}
+        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+      >
+        Go to guest login page
+      </.link>
+    </div>
+  <% end %>
+
   <.simple_form :let={r} for={:user} id="login-form" action={~p"/auth/login"}>
     <.input field={{r, :user_id}} type="text" label="user id" />
     <.input field={{r, :password}} type="text" label="password" />

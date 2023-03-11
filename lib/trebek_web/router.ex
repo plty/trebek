@@ -26,6 +26,9 @@ defmodule TrebekWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live_session :no_auth, on_mount: [TrebekWeb.AuthLive, TrebekWeb.EnsureAuthLive] do
+      live "/room", RoomLive.Index, :index
+    end
   end
 
   scope "/", TrebekWeb do
@@ -41,8 +44,10 @@ defmodule TrebekWeb.Router do
 
   scope "/auth", TrebekWeb do
     pipe_through [:browser]
-
-    get "/", AuthController, :index
+    
+    get"/", AuthController, :login_guest_page
+    post"/", AuthController, :login_guest
+    get "/login", AuthController, :index
     post "/login", AuthController, :login
     get "/logout", AuthController, :logout
     get "/register", AuthController, :register_page

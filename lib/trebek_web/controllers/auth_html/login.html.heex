@@ -1,1 +1,24 @@
-kasitaugaya
+<%= if @current_user do %>
+  <div>
+    <%= @current_user.username %>
+    <%= @current_user.id %>
+  </div>
+  <div>
+    <.link
+      navigate={~p"/auth/logout"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+    >
+      logout
+    </.link>
+  </div>
+
+<% else %>
+
+    <.simple_form :let={r} for={:user} id="login-form" action={~p"/auth/"}>
+        <.input field={{r, :username}} type="text" label="username" />
+        <:actions>
+        <.button phx-disable-with="...">Submit</.button>
+        </:actions>
+    </.simple_form>
+    
+<% end %>

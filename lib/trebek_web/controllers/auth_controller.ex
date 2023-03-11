@@ -3,7 +3,34 @@ defmodule TrebekWeb.AuthController do
   import Plug.Conn
   alias Argon2
 
+  def login_guest_page(conn, _params) do
+    render(conn, :login)
+  end
+
+  def login_guest(conn, %{"user" => %{"username" => username}}) do
+    id = Uniq.UUID.uuid7()
+
+    Trebek.Credo.put({:credential, id}, %{
+      username: username,
+      password: nil
+    })
+
+    user = %{id: id, username: username}
+
+    conn
+    |> TrebekWeb.Guardian.Plug.sign_in(user, user)
+    |> redirect(to: ~p"/room")
+  end
+
   def index(conn, _params) do
+    current_user = conn.assigns.current_user
+
+    conn =
+      case current_user do
+        nil -> conn |> assign(:is_guest, true)
+        user -> conn |> assign(:is_guest, is_guest?(user.id))
+      end
+
     render(conn, :index)
   end
 
@@ -26,7 +53,7 @@ defmodule TrebekWeb.AuthController do
   def register_page(conn, _params) do
     if conn.assigns.current_user do
       conn
-      |> redirect(to: ~p"/auth")
+      |> redirect(to: ~p"/auth/login")
     end
 
     render(conn, :register)
@@ -39,13 +66,13 @@ defmodule TrebekWeb.AuthController do
 
     conn
     |> TrebekWeb.Guardian.Plug.sign_in(user, user)
-    |> redirect(to: ~p"/auth")
+    |> redirect(to: ~p"/room")
   end
 
   def logout(conn, _params) do
     conn
     |> TrebekWeb.Guardian.Plug.sign_out()
-    |> redirect(to: ~p"/auth")
+    |> redirect(to: ~p"/room")
   end
 
   defp put_password_hash(user_id, username, password) do
@@ -67,6 +94,13 @@ defmodule TrebekWeb.AuthController do
       nil ->
         Argon2.no_user_verify()
         {:error, :invalid_credentials}
+    end
+  end
+
+  def is_guest?(user_id) do
+    case Trebek.Credo.get({:credential, user_id}) do
+      %{username: username, password: hashed_password} -> hashed_password == nil
+      nil -> {:error, :invalid_credentials}
     end
   end
 end
