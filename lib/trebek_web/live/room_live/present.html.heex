@@ -1,0 +1,27 @@
+<div class="space-y-4">
+
+  <h2> Online users: <%= @users |> map_size() %> </h2>
+
+  <div>
+    <%= if @prompt do %>
+      <%= case @prompt.type do %>
+      <% :discussion -> %>
+        <div>
+          title: <%= @prompt.title %><br />
+        </div>
+
+        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden))} >
+          <:col :let={r} label="content"><%= r.content %></:col>
+          <:col :let={r} label="upvotes">
+            <%= r.upvotes %>
+          </:col>
+          <:col :let={r} label="">
+            <.button phx-click="hide" phx-value-id={r.id} phx-value-user={r.user}> <Heroicons.check solid class="h-3 w-3 stroke-current" /> </.button>
+          </:col>
+        </.table>
+      <% end %>
+    <% else %>
+      Please wait ... Room not open yet
+    <% end %>
+  </div>
+</div>

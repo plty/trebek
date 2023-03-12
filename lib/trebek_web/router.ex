@@ -39,6 +39,7 @@ defmodule TrebekWeb.Router do
       live "/room", RoomLive.Index, :index
       live "/room/:id", RoomLive.Show, :index
       live "/room/:id/manage", RoomLive.Edit, :index
+      live "/room/:id/present", RoomLive.Present, :present
     end
   end
 
