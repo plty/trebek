@@ -158,7 +158,7 @@ defmodule TrebekWeb.RoomLive.Show do
     current_user_id = current_user.id
 
     previous_response =
-      Trebek.Credo.get({"room<#{socket.assigns.room_id}>", {:responses, current_user_id}})
+      Trebek.Credo.get({"room<#{socket.assigns.room_id}>", {:responses, current_user_id}}) || []
 
     Trebek.Credo.put(
       {"room<#{socket.assigns.room_id}>", {:responses, current_user_id}},
