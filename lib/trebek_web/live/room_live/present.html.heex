@@ -10,7 +10,7 @@
           title: <%= @prompt.title %><br />
         </div>
 
-        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden))} >
+        <.table id="responses" rows={@responses |> Enum.filter(&(!&1.hidden)) |> Enum.sort_by(&(-&1.upvotes))} >
           <:col :let={r} label="content"><%= r.content %></:col>
           <:col :let={r} label="upvotes">
             <%= r.upvotes %>
