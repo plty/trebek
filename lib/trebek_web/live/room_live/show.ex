@@ -193,6 +193,10 @@ defmodule TrebekWeb.RoomLive.Show do
 
   @impl true
   def handle_event("upvote", %{"id" => id}, socket) do
+  end
+
+  @impl true
+  def handle_event("upvote", %{"id" => id}, socket) do
     current_user = socket.assigns.current_user
     current_user_id = current_user.id
 

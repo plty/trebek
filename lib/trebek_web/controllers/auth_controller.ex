@@ -51,11 +51,6 @@ defmodule TrebekWeb.AuthController do
   end
 
   def register_page(conn, _params) do
-    if conn.assigns.current_user do
-      conn
-      |> redirect(to: ~p"/auth/login")
-    end
-
     render(conn, :register)
   end
 

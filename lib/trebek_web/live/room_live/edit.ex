@@ -16,7 +16,8 @@ defmodule TrebekWeb.RoomLive.Edit do
          |> assign(
            room_id: room_id,
            prompts_state:
-             Trebek.Credo.get({"room<#{room_id}>", :prompts}) || %{active: nil, prompts: []}
+             Trebek.Credo.get({"room<#{room_id}>", :prompts}) ||
+               %{active: nil, prompts: [], can_vote: false, can_answer: false}
          )}
 
       _ ->
@@ -25,17 +26,32 @@ defmodule TrebekWeb.RoomLive.Edit do
   end
 
   @impl true
-  def handle_event("save", %{"problem" => %{"question" => q}}, socket) do
-    id = Uniq.UUID.uuid7()
+  def handle_event("save", %{"prompt" => %{"id" => id, "question" => q}}, socket) do
+    ps = socket.assigns.prompts_state
 
     Trebek.Credo.put(
       {"room<#{socket.assigns.room_id}>", :prompts},
       %{
-        active: id,
-        can_answer: false,
-        can_vote: false,
-        prompts: [%{id: id, type: :discussion, title: q}]
+        ps
+        | prompts:
+            ps.prompts
+            |> Enum.map(fn prompt ->
+              case prompt.id do
+                ^id -> %{prompt | title: q}
+                _ -> prompt
+              end
+            end)
       }
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("activate", %{"id" => prompt_id}, socket) do
+    Trebek.Credo.put(
+      {"room<#{socket.assigns.room_id}>", :prompts},
+      %{socket.assigns.prompts_state | active: prompt_id}
     )
 
     {:noreply, socket}
@@ -49,8 +65,8 @@ defmodule TrebekWeb.RoomLive.Edit do
     Trebek.Credo.put(
       {"room<#{socket.assigns.room_id}>", :prompts},
       %{
-        active: ps.active,
-        prompts: [%{id: id, type: :discussion, title: "ayo apa hayo"} | ps.prompts]
+        ps
+        | prompts: [%{id: id, type: :discussion, title: "ayo apa hayo"} | ps.prompts]
       }
     )
 

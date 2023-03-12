@@ -9,12 +9,19 @@
 
   <%= for prompt <- @prompts_state.prompts do %>
     <div class="bg-blue-500">
-
-    <.input type="checkbox" value={prompt.id == @prompts_state.active} label="Active" />
-    <.simple_form :let={f} for={:problem} phx-submit="save">
+    <.simple_form :let={f} for={:prompt} phx-submit="save">
+      <.button type="button" phx-click="activate" phx-value-id={prompt.id}>activate</.button>
+      <%= if prompt.id == @prompts_state.active do %>
+      ACTIVATED
+      <% else %>
+      NOT ACTIVATED
+      <% end %>
+      <div class="hidden">
+        <.input field={{f, :id}} type="text" value={prompt.id} label="id" />
+      </div>
       <.input field={{f, :question}} type="text" value={prompt.title} label="Question" />
       <:actions>
-        <.button phx-disable-with="Submitting...">Submit</.button>
+        <.button phx-disable-with="Saving...">Save</.button>
       </:actions>
     </.simple_form>
     </div>
