@@ -157,6 +157,9 @@ defmodule TrebekWeb.RoomLive.Show do
     current_user = socket.assigns.current_user
     current_user_id = current_user.id
 
+    previous_response =
+      Trebek.Credo.get({"room<#{socket.assigns.room_id}>", {:responses, current_user_id}})
+
     Trebek.Credo.put(
       {"room<#{socket.assigns.room_id}>", {:responses, current_user_id}},
       [
@@ -167,24 +170,7 @@ defmodule TrebekWeb.RoomLive.Show do
           content: content,
           hidden: false
         }
-        | socket.assigns.responses
-          |> Enum.flat_map(fn r ->
-            case r.user do
-              ^current_user_id ->
-                [
-                  %{
-                    id: r.id,
-                    prompt: r.prompt,
-                    user: r.user,
-                    content: r.content,
-                    hidden: r.hidden
-                  }
-                ]
-
-              _ ->
-                []
-            end
-          end)
+        | previous_response
       ]
     )
 

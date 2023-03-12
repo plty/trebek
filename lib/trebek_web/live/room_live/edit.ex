@@ -49,9 +49,11 @@ defmodule TrebekWeb.RoomLive.Edit do
 
   @impl true
   def handle_event("activate", %{"id" => prompt_id}, socket) do
+    previous_prompt_state = Trebek.Credo.get({"room<#{socket.assigns.room_id}>", :prompts})
+
     Trebek.Credo.put(
       {"room<#{socket.assigns.room_id}>", :prompts},
-      %{socket.assigns.prompts_state | active: prompt_id}
+      %{previous_prompt_state | active: prompt_id}
     )
 
     {:noreply, socket}
